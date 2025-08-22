@@ -1,46 +1,43 @@
 "use client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import Bottones from "./Botones"
+import { createTask } from "@/lib/api"
+import Bottones from "./Bottones"
 import styles from "../registro/RegistroPage.module.css"
-
-
-const API_URL = "https://backend-prueba-1-eln5.onrender.com/api/tasks/"
-
-
-async function createTask(taskData) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(taskData),
-  })
-  if (!res.ok) {
-    
-    const errorData = await res.json().catch(() => ({}))
-    throw new Error(errorData.detail || errorData.message || "Error al crear la empresa")
-  }
-  return res.json()
-}
+import { useState } from "react"
 
 export default function Step3({ marca, titular, onBack }) {
   const queryClient = useQueryClient()
+  const [errorMessage, setErrorMessage] = useState("")
 
   const mutation = useMutation({
     mutationFn: createTask,
     onSuccess: (data) => {
-      alert(`Empresa "${marca}" registrada con ID: ${data.id}`)
+      alert(`¡Empresa "${marca}" registrada exitosamente con ID: ${data.id}!`)
       queryClient.invalidateQueries(["tasks"])
+      // Aquí podrías redirigir o resetear el formulario
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`)
-    },
+      console.error("Error creating task:", error)
+      setErrorMessage(error.message)
+      alert(`Error al registrar: ${error.message}`)
+    }
   })
 
   const handleConfirm = () => {
-    if (!marca.trim() || !titular.trim()) {
-      alert("Por favor, complete todos los campos")
+    // Validaciones
+    if (!marca.trim()) {
+      setErrorMessage("La marca es obligatoria")
+      alert("Por favor, ingresa una marca")
       return
     }
     
+    if (!titular.trim()) {
+      setErrorMessage("El titular es obligatorio")
+      alert("Por favor, ingresa un titular")
+      return
+    }
+    
+    setErrorMessage("")
     mutation.mutate({ 
       marca: marca.trim(), 
       titular: titular.trim(), 
@@ -50,22 +47,45 @@ export default function Step3({ marca, titular, onBack }) {
 
   return (
     <div className={styles.stepContainer}>
-      <h1>Marca a registrar</h1>
-      <input type="text" value={marca} readOnly className={styles.input} />
+      <h1>Resumen de Registro</h1>
+      
+      <div className={styles.summary}>
+        <div className={styles.summaryItem}>
+          <label>Marca:</label>
+          <input type="text" value={marca} readOnly className={styles.input} />
+        </div>
+        
+        <div className={styles.summaryItem}>
+          <label>Titular:</label>
+          <input type="text" value={titular} readOnly className={styles.input} />
+        </div>
+      </div>
 
-      <h1>Titular de la marca</h1>
-      <input type="text" value={titular} readOnly className={styles.input} />
+      {errorMessage && (
+        <div className={styles.errorMessage}>
+          ❌ {errorMessage}
+        </div>
+      )}
 
       <div className={styles.buttons}>
-        <Bottones type="back" onClick={onBack} />
+        <Bottones 
+          type="back" 
+          onClick={onBack}
+          disabled={mutation.isLoading}
+        />
         <Bottones
           type="confirm"
           onClick={handleConfirm}
           disabled={mutation.isLoading}
+          text={mutation.isLoading ? "Registrando..." : "Confirmar Registro"}
         />
       </div>
 
-      {mutation.isLoading && <p>Guardando...</p>}
+      {mutation.isLoading && (
+        <div className={styles.loading}>
+          <p>⏳ Guardando empresa en el sistema...</p>
+        </div>
+      )}
     </div>
   )
 }
