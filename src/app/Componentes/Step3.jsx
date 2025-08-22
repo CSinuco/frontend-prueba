@@ -1,7 +1,7 @@
 "use client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createTask } from "@/lib/api"
-import Bottones from "./Bottones"
+import Bottones from "./Botones"
 import styles from "../registro/RegistroPage.module.css"
 import { useState } from "react"
 
