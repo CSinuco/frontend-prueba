@@ -3,10 +3,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Bottones from "./Botones"
 import styles from "../registro/RegistroPage.module.css"
 
-// Usa la misma URL que DashboardPage
+
 const API_URL = "https://backend-prueba-1-eln5.onrender.com/api/tasks/"
 
-// Define las funciones de API directamente como en DashboardPage
+
 async function createTask(taskData) {
   const res = await fetch(API_URL, {
     method: "POST",
@@ -14,7 +14,7 @@ async function createTask(taskData) {
     body: JSON.stringify(taskData),
   })
   if (!res.ok) {
-    // Mejor manejo de errores
+    
     const errorData = await res.json().catch(() => ({}))
     throw new Error(errorData.detail || errorData.message || "Error al crear la empresa")
   }

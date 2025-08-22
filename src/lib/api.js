@@ -3,7 +3,7 @@ const BASE_URL =  "https://backend-prueba-1-eln5.onrender.com/api/tasks/" || "ht
 export async function apiFetch(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
   
-  // Log para depuración (solo en desarrollo)
+
   if (process.env.NODE_ENV === 'development') {
     console.log('Fetching URL:', url);
     console.log('Options:', options);
@@ -17,7 +17,7 @@ export async function apiFetch(endpoint, options = {}) {
     ...options,
   });
 
-  // Manejo mejorado de errores
+
   if (!res.ok) {
     let errorMessage = `Error ${res.status}: ${res.statusText}`;
     
@@ -25,20 +25,20 @@ export async function apiFetch(endpoint, options = {}) {
       const errorData = await res.json();
       errorMessage = errorData.detail || errorData.message || errorMessage;
       
-      // Para errores de Django con estructura de campos
+      
       if (errorData.errors) {
         errorMessage = Object.entries(errorData.errors)
           .map(([field, errors]) => `${field}: ${errors.join(', ')}`)
           .join('; ');
       }
     } catch (e) {
-      // No se pudo parsear la respuesta como JSON
+      
     }
     
     throw new Error(errorMessage);
   }
 
-  // Para respuestas vacías en DELETE
+
   if (res.status === 204) {
     return null;
   }
