@@ -2,7 +2,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import Bottones from "./Botones"
 import styles from "../registro/RegistroPage.module.css"
-import { createTask } from "@/lib/api"
+
+// Usa la misma URL que DashboardPage
+const API_URL = "https://backend-prueba-1-eln5.onrender.com/api/tasks/"
+
+// Define las funciones de API directamente como en DashboardPage
+async function createTask(taskData) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(taskData),
+  })
+  if (!res.ok) {
+    // Mejor manejo de errores
+    const errorData = await res.json().catch(() => ({}))
+    throw new Error(errorData.detail || errorData.message || "Error al crear la empresa")
+  }
+  return res.json()
+}
 
 export default function Step3({ marca, titular, onBack }) {
   const queryClient = useQueryClient()
@@ -10,17 +27,25 @@ export default function Step3({ marca, titular, onBack }) {
   const mutation = useMutation({
     mutationFn: createTask,
     onSuccess: (data) => {
-      alert(`Empresa registrada con ID: ${data.id}`)
-      
+      alert(`Empresa "${marca}" registrada con ID: ${data.id}`)
       queryClient.invalidateQueries(["tasks"])
     },
     onError: (error) => {
-      alert(error.message)
+      alert(`Error: ${error.message}`)
     },
   })
 
   const handleConfirm = () => {
-    mutation.mutate({ marca, titular, state: true })
+    if (!marca.trim() || !titular.trim()) {
+      alert("Por favor, complete todos los campos")
+      return
+    }
+    
+    mutation.mutate({ 
+      marca: marca.trim(), 
+      titular: titular.trim(), 
+      state: true 
+    })
   }
 
   return (
