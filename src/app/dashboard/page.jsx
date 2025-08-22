@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import styles from "./DashboardPage.module.css"  // ⬅ importa el CSS
 
-const API_URL = "http://127.0.0.1:8000/api/tasks/"
+const API_URL = "https://backend-prueba-1-eln5.onrender.com/api/tasks/"
 
 async function getTasks() {
   const res = await fetch(API_URL, { cache: "no-store" })
